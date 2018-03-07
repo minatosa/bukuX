@@ -1,0 +1,18 @@
+git config --global user.username minatosa
+git config --global user.name minatosa
+git config --global user.email edy@ptj.co.id
+git config --list
+git init
+git remote add origin https://github.com/minatosa/bukuX.git
+git pull origin master
+
+git status
+
+git add .
+
+git status
+
+git commit -m 'crud'
+
+git push origin master
+

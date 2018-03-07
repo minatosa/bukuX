@@ -3,6 +3,7 @@
 
 let Orang = require('../models/orang')
 let Buku = require('../models/buku')
+let Auth = require('../helpers/auth')
 
 const create = function (req, res) {
     let orang = new Orang(req.body)
@@ -21,6 +22,7 @@ const updateNama = function (req, res) {
     let id = req.params.id
     let namaOrang = req.body.nama
     let idBuku = req.body.idBuku
+    let pass = req.body.pass
 
     Orang.findById(id, function (err, orang) {
         if (err) {
@@ -29,8 +31,9 @@ const updateNama = function (req, res) {
         } else {
             if (namaOrang !== "undefined" && idBuku !== "undefined") {
                 
-                orang.judul = namaOrang
+                orang.nama = namaOrang
                 orang.id_buku = idBuku
+                orang.pass = Auth.hashPassword(pass)
                 
                 console.log(orang)
 
@@ -81,10 +84,24 @@ const remove = function (req, res) {
 }
 
 const getAll = function (req, res) {
-    Orang.find({}, function (err, orangs) {
-        if (err) res.send({ err: err })
-        else res.send(orangs)
-    })
+
+    let token = req.headers.token;
+
+    let user_data = Auth.getUserDetail(token)
+    if(user_data){
+        if(user_data.userID === "5a9f909695683a46687b3323" ){
+            Orang.find({}, function (err, orangs) {
+                if (err) res.send({ err: err })
+                else res.send(orangs)
+            })
+        }else{
+            res.send(user_data.userID)
+        }
+    }else{
+        res.send({err : 'Invalid Token'})
+    }
+
+    
 }
 
 const getOne = function (req, res) {
@@ -96,10 +113,55 @@ const getOne = function (req, res) {
     })
 }
 
+const login = function (req, res) {
+    let nama = req.body.nama
+    let pass = req.body.pass
+    
+    Orang.findOne({nama:nama}, function(err, data){
+        // res.send(data + data.pass)
+        let is_login = Auth.checkPassword(pass, data.pass)
+
+        // res.send(is_login);
+
+        if(is_login){
+            
+            let userData = {
+                nama : data.nama,
+                userID : data._id
+            }
+            // res.send(userData)
+            let token = Auth.createToken(userData)
+            if(token){
+                res.send({token:token});
+            }else{
+                res.send("Token gagal");
+            }
+        }else{
+            res.send("error invalid login");
+        }
+    })
+}
+
+const insert = function (req, res) {
+
+    let hassPass = Auth.hashPassword(req.body.pass)
+
+    let orang = new Orang({
+        nama : req.body.nama,
+        pass : hassPass
+    })
+
+    orang.save( function (err, orang){
+        res.send(orang);
+    })
+}
+
 module.exports = {
     create,
     getAll,
     getOne,
     updateNama,
-    remove
+    remove,
+    insert,
+    login
 }

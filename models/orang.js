@@ -4,6 +4,7 @@ const mongoose = require('mongoose') // framework mongoose
 
 var orangSchema = mongoose.Schema({
     nama: String,
+    pass: String,
     id_buku : {
         type : mongoose.Schema.ObjectId,
         ref : 'BukuTest1'

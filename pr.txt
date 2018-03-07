@@ -1,0 +1,12 @@
+MODEL
+Orang
+-- role -> admin | user
+
+CONTROLLER
+orangCtrl
+remove, getAll = role : admin -> baru bisa lihat semua
+
+bukuCtrl
+- CRUD = role : admin
+- pinjam = role : userlogin
+- userid = user id didapat dari token
